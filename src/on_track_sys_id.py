@@ -1,29 +1,47 @@
 #!/usr/bin/env python3
 
 import rospy
+import rospkg
 import numpy as np
 import os
 import yaml
 import csv
 from nav_msgs.msg import Odometry
 from ackermann_msgs.msg import AckermannDriveStamped
-from nn_train import nn_train
+from helpers.train_model import nn_train
 from datetime import datetime
 from tqdm import tqdm
 
 class On_Track_Sys_Id:
     def __init__(self):
+
         rospy.init_node('on_track_sys_id', anonymous=True)
+
+        if rospy.has_param('/racecar_version'):
+            self.racecar_version = rospy.get_param('/racecar_version')
+        else:
+            self.racecar_version = rospy.get_param('~racecar_version')
+
+        print("Racecar_version: ", self.racecar_version)
+
         self.rate = 50
-        self.load_parameters()        
+        rospack = rospkg.RosPack()
+        self.package_path = rospack.get_path('on_track_sys_id')
+
+        self.load_parameters()
         self.setup_data_storage()
         self.loop_rate = rospy.Rate(self.rate)
 
-        self.racecar_version = rospy.get_param('/racecar_version') # NUCX or SIM
         self.save_LUT_name = rospy.get_param('~save_LUT_name')
         self.plot_model = rospy.get_param('~plot_model')
-        rospy.Subscriber("/car_state/odom", Odometry, self.odom_cb)
-        rospy.Subscriber("/vesc/high_level/ackermann_cmd_mux/input/nav_1", AckermannDriveStamped, self.ackermann_cb)
+
+        # Get topic names from parameters (with default values if not set)
+        odom_topic = rospy.get_param('~odom_topic', '/car_state/odom')
+        ackermann_topic = rospy.get_param('~ackermann_cmd_topic', '/vesc/high_level/ackermann_cmd_mux/input/nav_1')
+
+        # Subscribe to the topics using the loaded parameter values
+        rospy.Subscriber(odom_topic, Odometry, self.odom_cb)
+        rospy.Subscriber(ackermann_topic, AckermannDriveStamped, self.ackermann_cb)
 
     def setup_data_storage(self):
         """
@@ -41,8 +59,8 @@ class On_Track_Sys_Id:
         """
         This function loads parameters neural network parameters from 'params/nn_params.yaml' and stores them in self.nn_params.
         """
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        yaml_file = os.path.join(script_dir, 'params/nn_params.yaml')
+
+        yaml_file = os.path.join(self.package_path, 'params/nn_params.yaml')
         with open(yaml_file, 'r') as file:
             self.nn_params = yaml.safe_load(file)
     
@@ -56,8 +74,7 @@ class On_Track_Sys_Id:
         # Prompt user for confirmation to export data
         user_input = input("\033[33m[WARN] Press 'Y' and then ENTER to export data as CSV, or press ENTER to continue without dumping: \033[0m")
         if user_input.lower() == 'y':
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            data_dir = os.path.join(script_dir, 'data', self.racecar_version)
+            data_dir = os.path.join(self.package_path, 'data', self.racecar_version)
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

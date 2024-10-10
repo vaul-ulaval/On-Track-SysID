@@ -14,8 +14,9 @@ from helpers.plot_results import plot_results
 from helpers.solve_pacejka import solve_pacejka
 from helpers.save_model import save
 from helpers.load_model import get_dotdict
-from simulate_model import LookupGenerator
+from helpers.simulate_model import LookupGenerator
 import rospy
+import rospkg
 from tqdm import tqdm
 
 def filter_data(training_data, model):
@@ -117,15 +118,14 @@ def get_model_param(racecar_version):
     Returns:
         dict: Model parameters including tire and vehicle properties.
     """
-    
-    # Load Pacejka tire parameters
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    yaml_file = os.path.join(script_dir, 'params/pacejka_params.yaml')
+    rospack = rospkg.RosPack()
+    package_path = rospack.get_path('on_track_sys_id')  # Replace with your package name
+    yaml_file = os.path.join(package_path, 'params/pacejka_params.yaml')
     with open(yaml_file, 'r') as file:
         pacejka_params = yaml.safe_load(file)
         
     # Load vehicle parameters
-    yaml_file = os.path.join(script_dir, 'models', racecar_version, racecar_version + '_pacejka.txt')
+    yaml_file = os.path.join(package_path, 'models', racecar_version, racecar_version + '_pacejka.txt')
     with open(yaml_file, 'r') as file:
         vehicle_params = yaml.safe_load(file)
 
@@ -153,9 +153,9 @@ def get_nn_params():
     Returns:
         dict: Neural network parameters.
     """
-    
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    yaml_file = os.path.join(script_dir, 'params/nn_params.yaml')
+    rospack = rospkg.RosPack()
+    package_path = rospack.get_path('on_track_sys_id')  # Replace with your package name
+    yaml_file = os.path.join(package_path, 'params/nn_params.yaml')
     with open(yaml_file, 'r') as file:
         nn_params = yaml.safe_load(file)
         
@@ -263,4 +263,4 @@ def nn_train(training_data, racecar_version, save_LUT_name, plot_model):
     
     # Generate Look-Up Table (LUT) with the updated model
     rospy.loginfo("LUT is being generated...")
-    LookupGenerator(model_name, save_LUT_name).run_generator()
+    LookupGenerator(racecar_version, save_LUT_name).run_generator()

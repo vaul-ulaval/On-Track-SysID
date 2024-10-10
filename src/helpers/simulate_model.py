@@ -1,4 +1,4 @@
-from dynamics.vehicle_dynamics_stown import vehicle_dynamics_st
+from helpers.vehicle_dynamics_stown import vehicle_dynamics_st
 from helpers.load_model import get_dotdict
 from scipy.integrate import odeint
 import numpy as np
@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import os
 import rospy
 import rospkg
-racecar_version = rospy.get_param('/racecar_version')# Simulation parameters
-MODEL_NAME = racecar_version + "_pacejka"
 
 SIMULATION_DURATION = 2.0 # seconds
 SIMULATION_DT = 0.01 # seconds
@@ -25,13 +23,13 @@ VEL_STEP_SIZE = 0.1 # m/s
 
 # rc params
 # custom_rc_params = {'font.serif': 'Times New Roman' ,
-#     'font.family': 'serif', 
+#     'font.family': 'serif',
 #     'font.size': 16,
 # }
 # plt.rcParams.update(custom_rc_params)
 
 class Simulator:
-  def __init__(self, model_name=MODEL_NAME):
+  def __init__(self, model_name):
     _, self.tiretype = model_name.split("_")
     self.model = get_dotdict(model_name)
     self.sol = None
@@ -39,17 +37,18 @@ class Simulator:
   def func_ST(self, x, t, u):
       f = vehicle_dynamics_st(x, u, self.model, self.tiretype)
       return f
-  
-  def run_simulation(self, initialState, u, 
+
+  def run_simulation(self, initialState, u,
                      duration=SIMULATION_DURATION, dt=SIMULATION_DT):
     t = np.arange(0, duration, dt)
     self.sol = odeint(self.func_ST, initialState, t, args=(u,))
     return self.sol
-  
+
 class LookupGenerator:
-  def __init__(self, model_name=MODEL_NAME, save_LUT_name="NUCx_pacejka"):
+  def __init__(self, racecar_version, save_LUT_name):
+    self.racecar_version = racecar_version
+    model_name = self.racecar_version +"_pacejka"
     self.sim = Simulator(model_name)
-    self.model_name = model_name
     self.save_LUT_name = save_LUT_name
     self.lookup_table = None
 
@@ -62,8 +61,9 @@ class LookupGenerator:
     self.save_lookup()
 
   def load_lookup(self, model, name):
-    sys_id_path = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(sys_id_path, "models", model, name + "_lookup_table.csv")
+    rospack = rospkg.RosPack()
+    package_path = rospack.get_path('on_track_sys_id')
+    file_path = os.path.join(package_path, "models", model, name + "_lookup_table.csv")
     self.lookup_table = np.loadtxt(file_path, delimiter=",")
     self.find_upper_limits()
     self.plot_lookup()
@@ -75,8 +75,8 @@ class LookupGenerator:
     vels = np.linspace(START_VEL, END_VEL, int((END_VEL-START_VEL)/VEL_STEP_SIZE))
     n_steps_steer = len(steers)
     n_steps_vel = len(vels)
-    
-    self.lookup_table = np.empty([n_steps_steer + 1, n_steps_vel +1])    
+
+    self.lookup_table = np.empty([n_steps_steer + 1, n_steps_vel +1])
     self.lookup_table[0, 1:] = vels
     self.lookup_table[1:, 0] = steers
 
@@ -165,10 +165,6 @@ class LookupGenerator:
   def save_lookup(self):
     rospack = rospkg.RosPack()
     path = rospack.get_path('on_track_sys_id')
-    file_path = os.path.join(path, "src/models", racecar_version, self.save_LUT_name + "_lookup_table.csv")
+    file_path = os.path.join(path, "models", self.racecar_version, self.save_LUT_name + "_lookup_table.csv")
     np.savetxt(file_path, self.lookup_table, delimiter=",")
     rospy.loginfo(f"SAVED LOOKUP TABLE TO: {file_path}")
-
-if __name__ == "__main__":
-  generator = LookupGenerator()
-  generator.run_generator()

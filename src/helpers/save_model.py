@@ -1,12 +1,13 @@
 import yaml
 import os
 import rospy
+import rospkg
 
 def save(model, overwrite_existing=True, verbose=False):
-  home_dir = os.path.expanduser("~")
-  project_dir = os.path.join(home_dir, "catkin_ws/src/race_stack/system_identification/on_track_sys_id/src")
-  os.chdir(project_dir)  
-  file_path = "./models/" + model['model_name'] +"/" + model['model_name'] +"_"+ model['tire_model'] + ".txt"
+
+  rospack = rospkg.RosPack()
+  package_path = rospack.get_path('on_track_sys_id')
+  file_path = package_path + "/models/" + model['model_name'] +"/" + model['model_name'] +"_"+ model['tire_model'] + ".txt"
   if os.path.isfile(file_path):
     if (verbose): print("Model already exists")
     if overwrite_existing:

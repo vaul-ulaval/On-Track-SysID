@@ -1,4 +1,3 @@
-## Table of Contents
 ## Introduction
 
 This node aims to identify the pacejka tire model of a vehicle with on-track data. It utilizes a neural network to learn model error in a nominal vehicle model. Combining the trained neural network and the nominal model, it generates steady state data and identifies Pacejka parameters from the generated data. This process is done iteratively to improve the vehicle model until the model converges.

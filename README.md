@@ -1,14 +1,11 @@
 ## Table of Contents
-
-- [Introduction](#introduction)
-- [Usage (Detailed)](#usage-detailed)
-- [Usage (Short)](#usage-short)
-- [Files and Directory Structure](#files-and-directory-structure)
-
 ## Introduction
 
 This node aims to identify the pacejka tire model of a vehicle with on-track data. It utilizes a neural network to learn model error in a nominal vehicle model. Combining the trained neural network and the nominal model, it generates steady state data and identifies Pacejka parameters from the generated data. This process is done iteratively to improve the vehicle model until the model converges.
 The identified parameters are then used to generate a Look-Up Table (LUT) for the MAP controller.
+
+## Installation
+The predictive spliner planner is part of the [ForzaETH Race Stack](https://github.com/ForzaETH/race_stack). Please refer to the [installation guide](https://github.com/ForzaETH/race_stack/blob/main/INSTALLATION.md) for detailed instructions and perform the quickstart guide below to run the planner.
 
 ## Usage (Detailed)
 

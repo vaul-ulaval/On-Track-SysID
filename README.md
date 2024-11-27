@@ -4,7 +4,7 @@ This node aims to identify the pacejka tire model of a vehicle with on-track dat
 The identified parameters are then used to generate a Look-Up Table (LUT) for the MAP controller.
 
 ## Installation
-The predictive spliner planner is part of the [ForzaETH Race Stack](https://github.com/ForzaETH/race_stack). Please refer to the [installation guide](https://github.com/ForzaETH/race_stack/blob/main/INSTALLATION.md) for detailed instructions and perform the quickstart guide below to run the planner.
+On-Track SysID is part of the [ForzaETH Race Stack](https://github.com/ForzaETH/race_stack). Please refer to the [installation guide](https://github.com/ForzaETH/race_stack/blob/main/INSTALLATION.md) for detailed instructions and perform the quickstart guide below to run the sysid procedure.
 
 ## Usage (Detailed)
 

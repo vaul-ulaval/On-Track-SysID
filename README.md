@@ -108,3 +108,18 @@ To use this node, follow these steps:
     - `save_model.py`: Module to save pacejka model parameters to corresponding txt files in `model/`.
     - `SimpleNN.py`: Module defining the structure of the neural network.
     - `solve_pacejka.py`: Module to solve for Pacejka tire model coefficients.
+
+## Citing On Track SysID
+
+If you found our stack helpful in your research, we would appreciate if you cite it as follows:
+```
+@misc{dikici2024learningbasedontrackidentificationscaled,
+      title={Learning-Based On-Track System Identification for Scaled Autonomous Racing in Under a Minute}, 
+      author={Onur Dikici and Edoardo Ghignone and Cheng Hu and Nicolas Baumann and Lei Xie and Andrea Carron and Michele Magno and Matteo Corno},
+      year={2024},
+      eprint={2411.17508},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2411.17508}, 
+}
+```

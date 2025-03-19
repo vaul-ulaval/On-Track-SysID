@@ -1,9 +1,26 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+import os
+from glob import glob
+
+package_name = "on_track_sys_id"
 
 setup(
-
-    name='on_track_sys_"id',  # The name of your package
-    version='0.1.0',         # Version of the package
-    packages=find_packages('src'),  # Find all packages under 'src'
-    package_dir={'': 'src'},        # Specify the root package directory
+    name=package_name,
+    version="0.0.0",
+    packages=[package_name],
+    data_files=[
+        ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
+        ("share/" + package_name, ["package.xml"]),
+        (os.path.join("share", package_name, "launch"), glob("launch/*")),
+        (os.path.join("share", package_name, "params"), glob("params/*")),
+    ],
+    install_requires=["setuptools"],
+    zip_safe=True,
+    maintainer="Onur Dikici",
+    maintainer_email="odikici@ethz.ch",
+    description="The on_track_sys_id package",
+    license="MIT",
+    entry_points={
+        "console_scripts": ["on_track_sys_id = on_track_sys_id.on_track_sys_id:main"],
+    },
 )
